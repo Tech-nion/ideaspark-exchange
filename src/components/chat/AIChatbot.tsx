@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, X, Send, Sparkles, Lightbulb } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -16,6 +17,8 @@ const suggestedQueries = [
   'Healthcare innovation ideas',
 ];
 
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -27,9 +30,67 @@ const AIChatbot = () => {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const streamChat = useCallback(async (
+    chatMessages: { role: string; content: string }[],
+    onDelta: (delta: string) => void,
+    onDone: () => void
+  ) => {
+    const resp = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({ messages: chatMessages }),
+    });
+
+    if (!resp.ok) {
+      const errorData = await resp.json().catch(() => ({}));
+      throw new Error(errorData.error || `Request failed with status ${resp.status}`);
+    }
+
+    if (!resp.body) throw new Error("No response body");
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "") continue;
+        if (!line.startsWith("data: ")) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") break;
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+          if (content) onDelta(content);
+        } catch {
+          textBuffer = line + "\n" + textBuffer;
+          break;
+        }
+      }
+    }
+
+    onDone();
+  }, []);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -37,27 +98,43 @@ const AIChatbot = () => {
       content: input,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const responses = [
-        `Based on your interest in "${input}", here are some trending ideas:\n\n1. **AI-Powered Solution** - A platform that uses machine learning for personalized recommendations.\n\n2. **Marketplace Model** - Connect buyers and sellers in this niche with a commission-based model.\n\n3. **SaaS Tool** - Build a subscription-based tool solving the core pain points.`,
-        `Great question about "${input}"! Here's what I found:\n\n🚀 **Hot Trend**: This sector is growing 40% YoY\n\n💡 **Top Ideas**: Check our Premium section for validated concepts\n\n📊 **Investment Potential**: High demand from investors`,
-        `Looking for ideas in "${input}"? Here are my recommendations:\n\n• Explore our HealthTech category for similar concepts\n• Consider combining with AI for added value\n• The B2B model tends to have higher margins in this space`,
-      ];
+    let assistantContent = "";
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)],
-      };
+    const updateAssistant = (chunk: string) => {
+      assistantContent += chunk;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && last.id.startsWith("streaming-")) {
+          return prev.map((m, i) => 
+            i === prev.length - 1 ? { ...m, content: assistantContent } : m
+          );
+        }
+        return [...prev, { id: "streaming-" + Date.now(), role: "assistant", content: assistantContent }];
+      });
+    };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+    try {
+      const chatHistory = newMessages.map(m => ({ role: m.role, content: m.content }));
+      await streamChat(chatHistory, updateAssistant, () => {
+        setMessages(prev => prev.map(m => 
+          m.id.startsWith("streaming-") ? { ...m, id: Date.now().toString() } : m
+        ));
+        setIsLoading(false);
+      });
+    } catch (error) {
+      console.error("Chat error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get response",
+        variant: "destructive",
+      });
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleSuggestion = (query: string) => {
