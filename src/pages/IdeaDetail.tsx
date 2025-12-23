@@ -4,8 +4,9 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Eye, ArrowLeft, Share2, Flag, ShoppingCart, Lock, CheckCircle } from 'lucide-react';
+import { Heart, Eye, ArrowLeft, Share2, Flag, ShoppingCart, Lock, CheckCircle, CreditCard, Star } from 'lucide-react';
 import AIChatbot from '@/components/chat/AIChatbot';
+import { useState } from 'react';
 
 const tierStyles = {
   demo: 'bg-tier-demo text-tier-demo-foreground',
@@ -16,6 +17,7 @@ const tierStyles = {
 const IdeaDetail = () => {
   const { id } = useParams();
   const idea = mockIdeas.find((i) => i.id === id);
+  const [liked, setLiked] = useState(false);
 
   if (!idea) {
     return (
@@ -51,9 +53,9 @@ const IdeaDetail = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-6">
               {/* Header */}
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft">
+              <div className="glass rounded-2xl p-8 shadow-soft">
                 <div className="flex items-start gap-4 mb-6">
                   <Badge className={`${tierStyles[idea.tier]} text-sm`}>
                     {idea.tier.charAt(0).toUpperCase() + idea.tier.slice(1)}
@@ -66,10 +68,13 @@ const IdeaDetail = () => {
                 </h1>
 
                 <div className="flex items-center gap-6 text-muted-foreground mb-6">
-                  <div className="flex items-center gap-2">
-                    <Heart className="w-5 h-5" />
-                    <span>{idea.likes} likes</span>
-                  </div>
+                  <button 
+                    onClick={() => setLiked(!liked)}
+                    className={`flex items-center gap-2 transition-colors ${liked ? 'text-red-500' : ''}`}
+                  >
+                    <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
+                    <span>{liked ? idea.likes + 1 : idea.likes} likes</span>
+                  </button>
                   <div className="flex items-center gap-2">
                     <Eye className="w-5 h-5" />
                     <span>{idea.views} views</span>
@@ -82,7 +87,7 @@ const IdeaDetail = () => {
                   {idea.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="px-3 py-1.5 bg-secondary rounded-lg text-sm text-muted-foreground"
+                      className="px-3 py-1.5 bg-secondary/60 backdrop-blur-sm rounded-lg text-sm text-muted-foreground"
                     >
                       {tag}
                     </span>
@@ -91,42 +96,44 @@ const IdeaDetail = () => {
               </div>
 
               {/* Description */}
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft">
+              <div className="glass rounded-2xl p-8 shadow-soft">
                 <h2 className="font-display text-xl font-semibold mb-4">About This Idea</h2>
                 <p className="text-muted-foreground leading-relaxed mb-6">
                   {idea.description}
                 </p>
 
                 {idea.tier !== 'demo' && (
-                  <div className="p-4 bg-secondary/50 rounded-xl border border-border">
+                  <div className="p-4 glass-subtle rounded-xl border border-border/50">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Lock className="w-5 h-5" />
-                      <span>Full details available after purchase</span>
+                      <span>Full details, market research, and documentation available after purchase</span>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* What's Included */}
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft">
+              <div className="glass rounded-2xl p-8 shadow-soft">
                 <h2 className="font-display text-xl font-semibold mb-6">What's Included</h2>
-                <ul className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {[
                     'Complete business concept documentation',
                     'Market research and analysis',
                     'Competitive landscape overview',
+                    'Target audience profiles',
                     idea.tier === 'premium' && 'Financial projections',
                     idea.tier === 'premium' && 'Implementation roadmap',
                     idea.tier !== 'demo' && 'Direct contact with idea creator',
+                    idea.tier === 'premium' && 'Investor pitch deck template',
                   ]
                     .filter(Boolean)
                     .map((item, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <CheckCircle className="w-5 h-5 text-tier-demo" />
-                        <span>{item}</span>
-                      </li>
+                      <div key={i} className="flex items-center gap-3 p-3 glass-subtle rounded-xl">
+                        <CheckCircle className="w-5 h-5 text-tier-demo flex-shrink-0" />
+                        <span className="text-sm">{item}</span>
+                      </div>
                     ))}
-                </ul>
+                </div>
               </div>
             </div>
 
@@ -134,13 +141,13 @@ const IdeaDetail = () => {
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
                 {/* Purchase Card */}
-                <div className={`bg-card rounded-2xl border p-6 ${idea.tier === 'premium' ? 'border-accent shadow-premium' : 'border-border shadow-soft'}`}>
+                <div className={`glass rounded-2xl p-6 ${idea.tier === 'premium' ? 'border-accent/30 shadow-premium' : 'border-border/50 shadow-soft'}`}>
                   <div className="text-center mb-6">
                     {idea.tier === 'demo' ? (
                       <span className="font-display text-4xl font-bold text-tier-demo">Free</span>
                     ) : (
                       <div>
-                        <span className="font-display text-4xl font-bold">${idea.price.toLocaleString()}</span>
+                        <span className="font-display text-4xl font-bold text-gradient">${idea.price.toLocaleString()}</span>
                         <span className="text-muted-foreground ml-2">one-time</span>
                       </div>
                     )}
@@ -151,28 +158,44 @@ const IdeaDetail = () => {
                       View Full Details
                     </Button>
                   ) : (
-                    <Link to="/auth">
-                      <Button variant={idea.tier === 'premium' ? 'premium' : 'hero'} size="lg" className="w-full mb-3">
+                    <Link to={`/checkout/${idea.id}`}>
+                      <Button variant={idea.tier === 'premium' ? 'premium' : 'hero'} size="lg" className="w-full mb-3 hover-shine">
                         <ShoppingCart className="w-5 h-5 mr-2" />
-                        Purchase Idea
+                        Purchase Now
                       </Button>
                     </Link>
                   )}
 
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Heart className="w-4 h-4 mr-2" />
-                      Save
+                  <div className="flex gap-2 mb-4">
+                    <Button variant="outline" size="sm" className="flex-1" onClick={() => setLiked(!liked)}>
+                      <Heart className={`w-4 h-4 mr-2 ${liked ? 'fill-red-500 text-red-500' : ''}`} />
+                      {liked ? 'Saved' : 'Save'}
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1">
                       <Share2 className="w-4 h-4 mr-2" />
                       Share
                     </Button>
                   </div>
+
+                  {/* Payment Methods */}
+                  {idea.tier !== 'demo' && (
+                    <div className="pt-4 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <CreditCard className="w-3 h-3" />
+                        Accepted Payment Methods
+                      </p>
+                      <div className="flex gap-2">
+                        <span className="px-2 py-1 bg-secondary rounded text-xs">💳 Cards</span>
+                        <span className="px-2 py-1 bg-secondary rounded text-xs">🅿️ PayPal</span>
+                        <span className="px-2 py-1 bg-secondary rounded text-xs">🏦 Bank</span>
+                        <span className="px-2 py-1 bg-secondary rounded text-xs">₿ Crypto</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Author Card */}
-                <div className="bg-card rounded-2xl border border-border p-6 shadow-soft">
+                <div className="glass rounded-2xl p-6 shadow-soft">
                   <h3 className="font-semibold mb-4">About the Creator</h3>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
@@ -180,7 +203,10 @@ const IdeaDetail = () => {
                     </div>
                     <div>
                       <p className="font-medium">{idea.author.name}</p>
-                      <p className="text-sm text-muted-foreground">Idea Creator</p>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <Star className="w-3 h-3 text-accent fill-accent" />
+                        <span>4.9 rating</span>
+                      </div>
                     </div>
                   </div>
                   <Button variant="outline" className="w-full">

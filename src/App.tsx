@@ -9,6 +9,12 @@ import IdeaDetail from "./pages/IdeaDetail";
 import SubmitIdea from "./pages/SubmitIdea";
 import Auth from "./pages/Auth";
 import Pricing from "./pages/Pricing";
+import Contact from "./pages/Contact";
+import Support from "./pages/Support";
+import Team from "./pages/Team";
+import Reviews from "./pages/Reviews";
+import GetQuote from "./pages/GetQuote";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +32,12 @@ const App = () => (
           <Route path="/submit" element={<SubmitIdea />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/team" element={<Team />} />
+          <Route path="/reviews" element={<Reviews />} />
+          <Route path="/get-quote" element={<GetQuote />} />
+          <Route path="/checkout/:id" element={<Checkout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
