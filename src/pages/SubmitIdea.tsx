@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { categories } from '@/data/mockIdeas';
 import { IdeaTier } from '@/types/idea';
-import { Lightbulb, ArrowRight, Check, Crown, Zap, Gift } from 'lucide-react';
+import { Lightbulb, ArrowRight, Check, Crown, Zap, Gift, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AIChatbot from '@/components/chat/AIChatbot';
 
@@ -63,15 +63,23 @@ const SubmitIdea = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Background decoration */}
+      <div className="fixed inset-0 gradient-mesh opacity-40 pointer-events-none" />
+      <div className="fixed top-1/4 right-1/4 w-96 h-96 orb orb-primary opacity-20 pointer-events-none" />
+      <div className="fixed bottom-1/4 left-1/4 w-80 h-80 orb orb-accent opacity-15 pointer-events-none" />
+      
       <Navbar />
       
-      <main className="pt-24 pb-16">
+      <main className="pt-24 pb-16 relative">
         <div className="container mx-auto px-4 max-w-3xl">
           {/* Header */}
-          <div className="text-center mb-12">
-            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-glow">
-              <Lightbulb className="w-8 h-8 text-primary-foreground" />
+          <div className="text-center mb-12 animate-blur-in">
+            <div className="relative inline-block mb-6">
+              <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow animate-float">
+                <Lightbulb className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <Sparkles className="absolute -top-1 -right-1 w-5 h-5 text-accent animate-pulse" />
             </div>
             <h1 className="font-display text-4xl font-bold mb-4">Submit Your Idea</h1>
             <p className="text-muted-foreground text-lg">
@@ -84,16 +92,16 @@ const SubmitIdea = () => {
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center gap-2">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-500 ${
                     step >= s
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-secondary text-muted-foreground'
+                      ? 'gradient-primary text-primary-foreground shadow-glow scale-110'
+                      : 'glass text-muted-foreground'
                   }`}
                 >
                   {step > s ? <Check className="w-5 h-5" /> : s}
                 </div>
                 {s < 3 && (
-                  <div className={`w-16 h-1 rounded ${step > s ? 'bg-primary' : 'bg-secondary'}`} />
+                  <div className={`w-16 h-1 rounded transition-all duration-500 ${step > s ? 'gradient-primary' : 'bg-secondary'}`} />
                 )}
               </div>
             ))}
@@ -102,11 +110,11 @@ const SubmitIdea = () => {
           <form onSubmit={handleSubmit}>
             {/* Step 1: Basic Info */}
             {step === 1 && (
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft animate-fade-in">
+              <div className="glass rounded-2xl p-8 shadow-medium animate-scale-in">
                 <h2 className="font-display text-2xl font-semibold mb-6">Basic Information</h2>
                 
                 <div className="space-y-6">
-                  <div>
+                  <div className="group">
                     <Label htmlFor="title">Idea Title</Label>
                     <Input
                       id="title"
@@ -114,12 +122,12 @@ const SubmitIdea = () => {
                       placeholder="E.g., AI-Powered Personal Finance Assistant"
                       value={formData.title}
                       onChange={handleChange}
-                      className="mt-2"
+                      className="mt-2 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                       required
                     />
                   </div>
 
-                  <div>
+                  <div className="group">
                     <Label htmlFor="description">Description</Label>
                     <Textarea
                       id="description"
@@ -128,7 +136,7 @@ const SubmitIdea = () => {
                       value={formData.description}
                       onChange={handleChange}
                       rows={6}
-                      className="mt-2"
+                      className="mt-2 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300 resize-none"
                       required
                     />
                   </div>
@@ -140,7 +148,7 @@ const SubmitIdea = () => {
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
-                      className="mt-2 w-full h-11 px-4 rounded-lg border border-input bg-background text-foreground"
+                      className="mt-2 w-full h-12 px-4 rounded-lg glass-subtle border border-border/50 text-foreground focus:border-primary/50 transition-all duration-300"
                       required
                     >
                       <option value="">Select a category</option>
@@ -158,7 +166,7 @@ const SubmitIdea = () => {
                       placeholder="AI, Mobile App, B2B"
                       value={formData.tags}
                       onChange={handleChange}
-                      className="mt-2"
+                      className="mt-2 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                     />
                   </div>
                 </div>
@@ -166,45 +174,49 @@ const SubmitIdea = () => {
                 <Button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="w-full mt-8"
+                  className="w-full mt-8 hover-shine group"
+                  variant="hero"
                   size="lg"
                   disabled={!formData.title || !formData.description || !formData.category}
                 >
                   Continue
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                 </Button>
               </div>
             )}
 
             {/* Step 2: Tier Selection */}
             {step === 2 && (
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft animate-fade-in">
+              <div className="glass rounded-2xl p-8 shadow-medium animate-scale-in">
                 <h2 className="font-display text-2xl font-semibold mb-6">Choose Your Listing Tier</h2>
                 
-                <div className="grid gap-4">
-                  {tierOptions.map((tier) => (
+                <div className="grid gap-4 stagger-children">
+                  {tierOptions.map((tier, index) => (
                     <button
                       key={tier.value}
                       type="button"
                       onClick={() => setFormData({ ...formData, tier: tier.value })}
-                      className={`p-6 rounded-xl border-2 text-left transition-all ${
+                      className={`p-6 rounded-xl border-2 text-left transition-all duration-300 hover-lift ${
                         formData.tier === tier.value
                           ? tier.value === 'premium'
-                            ? 'border-accent bg-accent/5 shadow-premium'
-                            : 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/30'
+                            ? 'border-accent glass shadow-premium'
+                            : 'border-primary glass'
+                          : 'border-border/50 glass-subtle hover:border-primary/30'
                       }`}
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                            tier.value === 'premium'
-                              ? 'gradient-accent'
-                              : tier.value === 'standard'
-                              ? 'bg-tier-standard'
-                              : 'bg-tier-demo'
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                            formData.tier === tier.value
+                              ? tier.value === 'premium'
+                                ? 'gradient-accent shadow-premium'
+                                : tier.value === 'standard'
+                                ? 'bg-tier-standard'
+                                : 'bg-tier-demo'
+                              : 'bg-secondary'
                           }`}>
-                            <tier.icon className="w-6 h-6 text-primary-foreground" />
+                            <tier.icon className={`w-6 h-6 ${formData.tier === tier.value ? 'text-primary-foreground' : 'text-muted-foreground'}`} />
                           </div>
                           <div>
                             <h3 className="font-semibold text-lg">{tier.label}</h3>
@@ -223,7 +235,7 @@ const SubmitIdea = () => {
                 </div>
 
                 {formData.tier !== 'demo' && (
-                  <div className="mt-6">
+                  <div className="mt-6 animate-slide-up">
                     <Label htmlFor="price">Your Asking Price ($)</Label>
                     <Input
                       id="price"
@@ -232,7 +244,7 @@ const SubmitIdea = () => {
                       placeholder="Enter your price"
                       value={formData.price}
                       onChange={handleChange}
-                      className="mt-2"
+                      className="mt-2 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                       required
                     />
                   </div>
@@ -242,9 +254,9 @@ const SubmitIdea = () => {
                   <Button type="button" variant="outline" onClick={() => setStep(1)} size="lg" className="flex-1">
                     Back
                   </Button>
-                  <Button type="button" onClick={() => setStep(3)} size="lg" className="flex-1">
+                  <Button type="button" onClick={() => setStep(3)} size="lg" className="flex-1 hover-shine group" variant="hero">
                     Continue
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
                   </Button>
                 </div>
               </div>
@@ -252,35 +264,35 @@ const SubmitIdea = () => {
 
             {/* Step 3: Review & Submit */}
             {step === 3 && (
-              <div className="bg-card rounded-2xl border border-border p-8 shadow-soft animate-fade-in">
+              <div className="glass rounded-2xl p-8 shadow-medium animate-scale-in">
                 <h2 className="font-display text-2xl font-semibold mb-6">Review & Submit</h2>
                 
-                <div className="space-y-6">
-                  <div className="p-4 bg-secondary rounded-xl">
+                <div className="space-y-4 stagger-children">
+                  <div className="p-4 glass-subtle rounded-xl">
                     <span className="text-sm text-muted-foreground">Title</span>
                     <p className="font-semibold">{formData.title}</p>
                   </div>
 
-                  <div className="p-4 bg-secondary rounded-xl">
+                  <div className="p-4 glass-subtle rounded-xl">
                     <span className="text-sm text-muted-foreground">Description</span>
                     <p className="mt-1">{formData.description}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-secondary rounded-xl">
+                    <div className="p-4 glass-subtle rounded-xl">
                       <span className="text-sm text-muted-foreground">Category</span>
                       <p className="font-semibold">{formData.category}</p>
                     </div>
-                    <div className="p-4 bg-secondary rounded-xl">
+                    <div className="p-4 glass-subtle rounded-xl">
                       <span className="text-sm text-muted-foreground">Tier</span>
                       <p className="font-semibold capitalize">{formData.tier}</p>
                     </div>
                   </div>
 
                   {formData.tier !== 'demo' && (
-                    <div className="p-4 bg-secondary rounded-xl">
+                    <div className="p-4 glass-subtle rounded-xl">
                       <span className="text-sm text-muted-foreground">Your Asking Price</span>
-                      <p className="font-display text-2xl font-bold">${formData.price}</p>
+                      <p className="font-display text-2xl font-bold text-gradient">${formData.price}</p>
                     </div>
                   )}
                 </div>
@@ -289,9 +301,9 @@ const SubmitIdea = () => {
                   <Button type="button" variant="outline" onClick={() => setStep(2)} size="lg" className="flex-1">
                     Back
                   </Button>
-                  <Button type="submit" variant="hero" size="lg" className="flex-1">
+                  <Button type="submit" variant="hero" size="lg" className="flex-1 hover-shine group">
                     Submit Idea
-                    <Check className="w-5 h-5 ml-2" />
+                    <Check className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:scale-110" />
                   </Button>
                 </div>
               </div>
