@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Menu, X, Search, User, Plus } from 'lucide-react';
+import { Lightbulb, Menu, X, Search, User, Plus, ChevronDown } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -16,10 +17,17 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  const mainLinks = [
     { href: '/marketplace', label: 'Marketplace' },
-    { href: '/submit', label: 'Submit Idea' },
     { href: '/pricing', label: 'Pricing' },
+  ];
+
+  const moreLinks = [
+    { href: '/reviews', label: 'Reviews' },
+    { href: '/team', label: 'Our Team' },
+    { href: '/support', label: 'Support' },
+    { href: '/contact', label: 'Contact' },
+    { href: '/get-quote', label: 'Get a Quote' },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -44,7 +52,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
+            {mainLinks.map((link) => (
               <Link
                 key={link.href}
                 to={link.href}
@@ -54,19 +62,47 @@ const Navbar = () => {
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {/* Hover background */}
                 <span className={`absolute inset-0 rounded-lg transition-all duration-300 ${
                   isActive(link.href) 
                     ? 'bg-primary/10' 
                     : 'bg-transparent group-hover:bg-secondary'
                 }`} />
-                {/* Active indicator */}
                 {isActive(link.href) && (
                   <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                 )}
                 <span className="relative">{link.label}</span>
               </Link>
             ))}
+
+            {/* More Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowDropdown(true)}
+              onMouseLeave={() => setShowDropdown(false)}
+            >
+              <button className="flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground transition-all duration-300">
+                More
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${showDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showDropdown && (
+                <div className="absolute top-full left-0 mt-2 w-48 glass rounded-xl shadow-medium border border-border/50 py-2 animate-scale-in">
+                  {moreLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      to={link.href}
+                      className={`block px-4 py-2.5 text-sm transition-all duration-300 ${
+                        isActive(link.href)
+                          ? 'text-primary bg-primary/5'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Desktop Actions */}
@@ -100,8 +136,8 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden py-4 border-t border-border/50 animate-slide-up glass-subtle rounded-b-2xl mt-2">
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link, index) => (
+            <div className="flex flex-col gap-1">
+              {[...mainLinks, ...moreLinks].map((link, index) => (
                 <Link
                   key={link.href}
                   to={link.href}
@@ -117,10 +153,10 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex gap-2 mt-4 px-4">
-                <Link to="/auth" className="flex-1">
+                <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
                   <Button variant="outline" className="w-full">Sign In</Button>
                 </Link>
-                <Link to="/submit" className="flex-1">
+                <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
                   <Button variant="hero" className="w-full">Submit</Button>
                 </Link>
               </div>
