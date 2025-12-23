@@ -1,10 +1,10 @@
 import { useParams, Link } from 'react-router-dom';
-import { mockIdeas } from '@/data/mockIdeas';
+import { useIdea } from '@/hooks/useIdeas';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Eye, ArrowLeft, Share2, Flag, ShoppingCart, Lock, CheckCircle, CreditCard, Star } from 'lucide-react';
+import { Heart, Eye, ArrowLeft, Share2, Flag, ShoppingCart, Lock, CheckCircle, CreditCard, Star, Loader2 } from 'lucide-react';
 import AIChatbot from '@/components/chat/AIChatbot';
 import { useState } from 'react';
 
@@ -16,8 +16,20 @@ const tierStyles = {
 
 const IdeaDetail = () => {
   const { id } = useParams();
-  const idea = mockIdeas.find((i) => i.id === id);
+  const { data: idea, isLoading } = useIdea(id || '');
   const [liked, setLiked] = useState(false);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-24 pb-16 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!idea) {
     return (

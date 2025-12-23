@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
-import { mockIdeas } from '@/data/mockIdeas';
+import { useIdeas } from '@/hooks/useIdeas';
 import IdeaCard from '@/components/ideas/IdeaCard';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Zap } from 'lucide-react';
+import { ArrowRight, Zap, Loader2 } from 'lucide-react';
 
 const FeaturedIdeas = () => {
-  const featuredIdeas = mockIdeas.slice(0, 6);
+  const { data: ideas = [], isLoading } = useIdeas();
+  const featuredIdeas = ideas.slice(0, 6);
 
   return (
     <section className="py-24 bg-gradient-to-b from-background to-secondary/30">
@@ -33,11 +34,17 @@ const FeaturedIdeas = () => {
         </div>
 
         {/* Ideas Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredIdeas.map((idea, index) => (
-            <IdeaCard key={idea.id} idea={idea} index={index} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredIdeas.map((idea, index) => (
+              <IdeaCard key={idea.id} idea={idea} index={index} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

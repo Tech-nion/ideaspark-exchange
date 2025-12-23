@@ -4,17 +4,18 @@ import Footer from '@/components/layout/Footer';
 import IdeaCard from '@/components/ideas/IdeaCard';
 import IdeaFilters from '@/components/ideas/IdeaFilters';
 import AIChatbot from '@/components/chat/AIChatbot';
-import { mockIdeas } from '@/data/mockIdeas';
+import { useIdeas } from '@/hooks/useIdeas';
 import { IdeaTier } from '@/types/idea';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const Marketplace = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedTier, setSelectedTier] = useState<IdeaTier | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: ideas = [], isLoading } = useIdeas();
 
   const filteredIdeas = useMemo(() => {
-    return mockIdeas.filter((idea) => {
+    return ideas.filter((idea) => {
       const matchesCategory = selectedCategory === 'All' || idea.category === selectedCategory;
       const matchesTier = selectedTier === 'all' || idea.tier === selectedTier;
       const matchesSearch =
@@ -25,7 +26,7 @@ const Marketplace = () => {
 
       return matchesCategory && matchesTier && matchesSearch;
     });
-  }, [selectedCategory, selectedTier, searchQuery]);
+  }, [ideas, selectedCategory, selectedTier, searchQuery]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -73,7 +74,11 @@ const Marketplace = () => {
                 </p>
               </div>
 
-              {filteredIdeas.length > 0 ? (
+              {isLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              ) : filteredIdeas.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {filteredIdeas.map((idea, index) => (
                     <IdeaCard key={idea.id} idea={idea} index={index} />
