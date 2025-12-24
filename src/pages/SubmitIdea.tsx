@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
@@ -12,10 +12,11 @@ import { IdeaTier } from '@/types/idea';
 import { 
   Lightbulb, ArrowRight, Check, Crown, Zap, Gift, Sparkles, 
   Loader2, ShieldCheck, DollarSign, TrendingUp, AlertTriangle,
-  CheckCircle, XCircle, RefreshCw
+  CheckCircle, XCircle, RefreshCw, LogIn
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AIChatbot from '@/components/chat/AIChatbot';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VerificationAnalysis {
   score: number;
@@ -53,6 +54,7 @@ const tierOptions: { value: IdeaTier; label: string; description: string; price:
 const SubmitIdea = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verification, setVerification] = useState<VerificationAnalysis | null>(null);
@@ -64,6 +66,49 @@ const SubmitIdea = () => {
     price: '',
     tags: '',
   });
+
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Auth guard - require login to submit ideas
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-24 pb-16">
+          <div className="container mx-auto px-4 text-center max-w-md">
+            <div className="glass rounded-2xl p-8">
+              <LogIn className="w-16 h-16 text-primary mx-auto mb-4" />
+              <h1 className="font-display text-2xl font-bold mb-2">Sign In Required</h1>
+              <p className="text-muted-foreground mb-6">
+                Please sign in or create an account to submit your innovative ideas.
+              </p>
+              <div className="flex flex-col gap-3">
+                <Link to="/auth">
+                  <Button variant="hero" className="w-full">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In / Sign Up
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant="outline" className="w-full">
+                    Back to Home
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
