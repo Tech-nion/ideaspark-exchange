@@ -1,34 +1,109 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Lightbulb, Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Lightbulb, Mail, Lock, User, ArrowRight, Eye, EyeOff, Sparkles, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Auth = () => {
   const { toast } = useToast();
+  const { user, signIn, signUp, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
   });
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/');
+    }
+  }, [user, authLoading, navigate]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: isLogin ? 'Welcome back!' : 'Account created!',
-      description: isLogin
-        ? 'You have successfully signed in.'
-        : 'Your account has been created. Please check your email to verify.',
-    });
+    setIsSubmitting(true);
+
+    try {
+      if (isLogin) {
+        const { error } = await signIn(formData.email, formData.password);
+        if (error) {
+          let message = error.message;
+          if (error.message.includes('Invalid login credentials')) {
+            message = 'Invalid email or password. Please try again.';
+          }
+          toast({
+            title: 'Sign in failed',
+            description: message,
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Welcome back!',
+            description: 'You have successfully signed in.',
+          });
+          navigate('/');
+        }
+      } else {
+        if (formData.password.length < 6) {
+          toast({
+            title: 'Invalid password',
+            description: 'Password must be at least 6 characters long.',
+            variant: 'destructive',
+          });
+          setIsSubmitting(false);
+          return;
+        }
+        
+        const { error } = await signUp(formData.email, formData.password, formData.name);
+        if (error) {
+          let message = error.message;
+          if (error.message.includes('User already registered')) {
+            message = 'This email is already registered. Please sign in instead.';
+          }
+          toast({
+            title: 'Sign up failed',
+            description: message,
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Account created!',
+            description: 'You have been signed in automatically.',
+          });
+          navigate('/');
+        }
+      }
+    } catch (error) {
+      toast({
+        title: 'An error occurred',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex">
@@ -76,6 +151,7 @@ const Auth = () => {
                     onChange={handleChange}
                     className="pl-12 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -94,6 +170,7 @@ const Auth = () => {
                   onChange={handleChange}
                   className="pl-12 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
@@ -111,15 +188,21 @@ const Auth = () => {
                   onChange={handleChange}
                   className="pl-12 pr-12 h-12 glass-subtle border-border/50 focus:border-primary/50 transition-all duration-300"
                   required
+                  disabled={isSubmitting}
+                  minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all duration-300 hover:scale-110"
+                  disabled={isSubmitting}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {!isLogin && (
+                <p className="text-xs text-muted-foreground mt-1">Must be at least 6 characters</p>
+              )}
             </div>
 
             {isLogin && (
@@ -130,9 +213,25 @@ const Auth = () => {
               </div>
             )}
 
-            <Button type="submit" variant="hero" size="lg" className="w-full hover-shine group animate-slide-up" style={{ animationDelay: '150ms' }}>
-              {isLogin ? 'Sign In' : 'Create Account'}
-              <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+            <Button 
+              type="submit" 
+              variant="hero" 
+              size="lg" 
+              className="w-full hover-shine group animate-slide-up" 
+              style={{ animationDelay: '150ms' }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  {isLogin ? 'Signing in...' : 'Creating account...'}
+                </>
+              ) : (
+                <>
+                  {isLogin ? 'Sign In' : 'Create Account'}
+                  <ArrowRight className="w-5 h-5 ml-2 transition-transform duration-300 group-hover:translate-x-1" />
+                </>
+              )}
             </Button>
           </form>
 
@@ -143,6 +242,7 @@ const Auth = () => {
               type="button"
               onClick={() => setIsLogin(!isLogin)}
               className="text-primary font-medium hover:underline transition-all duration-300"
+              disabled={isSubmitting}
             >
               {isLogin ? 'Sign up' : 'Sign in'}
             </button>

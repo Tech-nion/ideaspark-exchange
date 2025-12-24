@@ -1,13 +1,23 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Menu, X, Search, User, Plus, ChevronDown } from 'lucide-react';
+import { Lightbulb, Menu, X, Search, User, Plus, ChevronDown, LogOut } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +26,11 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   const mainLinks = [
     { href: '/marketplace', label: 'Marketplace' },
@@ -110,12 +125,35 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="hover:bg-secondary/80 transition-all duration-300 hover:scale-105">
               <Search className="w-5 h-5" />
             </Button>
-            <Link to="/auth">
-              <Button variant="outline" size="sm" className="hover-glow">
-                <User className="w-4 h-4 mr-2" />
-                Sign In
-              </Button>
-            </Link>
+            
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="hover-glow">
+                    <User className="w-4 h-4 mr-2" />
+                    {user.email?.split('@')[0] || 'Account'}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem className="text-muted-foreground text-xs">
+                    {user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Link to="/auth">
+                <Button variant="outline" size="sm" className="hover-glow">
+                  <User className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
+            
             <Link to="/submit">
               <Button variant="hero" size="sm" className="hover-shine">
                 <Plus className="w-4 h-4 mr-2" />
@@ -153,12 +191,26 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex gap-2 mt-4 px-4">
-                <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
-                  <Button variant="outline" className="w-full">Sign In</Button>
-                </Link>
-                <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
-                  <Button variant="hero" className="w-full">Submit</Button>
-                </Link>
+                {user ? (
+                  <>
+                    <Button variant="outline" className="flex-1" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </Button>
+                    <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="hero" className="w-full">Submit</Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/auth" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full">Sign In</Button>
+                    </Link>
+                    <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
+                      <Button variant="hero" className="w-full">Submit</Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
