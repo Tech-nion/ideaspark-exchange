@@ -31,20 +31,20 @@ const Contact = () => {
     {
       icon: Mail,
       title: 'Email Us',
-      detail: 'hello@ideaxchange.com',
+      detail: 'ideaxchange@gmail.com',
       subDetail: 'We reply within 24 hours',
     },
     {
       icon: Phone,
       title: 'Call Us',
-      detail: '+1 (555) 123-4567',
-      subDetail: 'Mon-Fri 9AM-6PM EST',
+      detail: '0313-4649629',
+      subDetail: 'Mon-Fri 9AM-6PM PKT',
     },
     {
       icon: MapPin,
       title: 'Visit Us',
-      detail: '123 Innovation Way',
-      subDetail: 'San Francisco, CA 94102',
+      detail: 'IdeaXchange HQ',
+      subDetail: 'Pakistan',
     },
   ];
 

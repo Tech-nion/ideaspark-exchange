@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lightbulb, Twitter, Linkedin, Github, Mail } from 'lucide-react';
+import { Lightbulb, Twitter, Linkedin, Github, Mail, Phone } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -17,6 +17,16 @@ const Footer = () => {
             <p className="text-muted-foreground text-sm mb-4 max-w-xs">
               The premier marketplace where innovative ideas meet visionary investors. Turn your concepts into capital.
             </p>
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-4">
+              <a href="mailto:ideaxchange@gmail.com" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Mail className="w-4 h-4" />
+                ideaxchange@gmail.com
+              </a>
+              <a href="tel:03134649629" className="flex items-center gap-2 hover:text-primary transition-colors">
+                <Phone className="w-4 h-4" />
+                0313-4649629
+              </a>
+            </div>
             <div className="flex gap-3">
               <a href="#" className="w-9 h-9 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-all duration-300 hover:scale-110">
                 <Twitter className="w-4 h-4" />
@@ -27,7 +37,7 @@ const Footer = () => {
               <a href="#" className="w-9 h-9 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-all duration-300 hover:scale-110">
                 <Github className="w-4 h-4" />
               </a>
-              <a href="#" className="w-9 h-9 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-all duration-300 hover:scale-110">
+              <a href="mailto:ideaxchange@gmail.com" className="w-9 h-9 rounded-lg bg-secondary hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-all duration-300 hover:scale-110">
                 <Mail className="w-4 h-4" />
               </a>
             </div>
