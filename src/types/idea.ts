@@ -12,11 +12,17 @@ export interface Idea {
     name: string;
     avatar?: string;
   };
-  createdAt: string;
-  likes: number;
+  created_at: string;
+  likes: number | null;
   views: number;
-  tags: string[];
+  tags: string[] | null;
   thumbnail?: string;
+  // AI Verification fields
+  ai_verified?: boolean | null;
+  ai_score?: number | null;
+  ai_predicted_price?: number | null;
+  ai_analysis?: string | null;
+  verified_at?: string | null;
 }
 
 export interface User {
