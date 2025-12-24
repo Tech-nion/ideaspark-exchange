@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { mockIdeas } from '@/data/mockIdeas';
-import { CreditCard, Lock, Shield, CheckCircle, ArrowLeft } from 'lucide-react';
+import { CreditCard, Lock, Shield, CheckCircle, ArrowLeft, LogIn } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const paymentMethods = [
   { id: 'card', name: 'Credit / Debit Card', icon: '💳', description: 'Visa, Mastercard, Amex' },
@@ -21,6 +21,7 @@ const Checkout = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const idea = mockIdeas.find((i) => i.id === id);
 
   const [selectedPayment, setSelectedPayment] = useState('card');
@@ -30,6 +31,50 @@ const Checkout = () => {
     expiry: '',
     cvc: '',
   });
+
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Auth guard - require login to purchase
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="pt-24 pb-16">
+          <div className="container mx-auto px-4 text-center max-w-md">
+            <div className="glass rounded-2xl p-8">
+              <LogIn className="w-16 h-16 text-primary mx-auto mb-4" />
+              <h1 className="font-display text-2xl font-bold mb-2">Sign In Required</h1>
+              <p className="text-muted-foreground mb-6">
+                Please sign in or create an account to purchase ideas.
+              </p>
+              <div className="flex flex-col gap-3">
+                <Link to="/auth">
+                  <Button variant="hero" className="w-full">
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In / Sign Up
+                  </Button>
+                </Link>
+                <Link to={`/idea/${id}`}>
+                  <Button variant="outline" className="w-full">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back to Idea
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!idea || idea.tier === 'demo') {
     return (
