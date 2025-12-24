@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, Eye, ArrowLeft, Share2, Flag, ShoppingCart, Lock, CheckCircle, CreditCard, Star, Loader2 } from 'lucide-react';
 import AIChatbot from '@/components/chat/AIChatbot';
+import IdeaVerification from '@/components/ideas/IdeaVerification';
 import { useState } from 'react';
 
 const tierStyles = {
@@ -73,6 +74,12 @@ const IdeaDetail = () => {
                     {idea.tier.charAt(0).toUpperCase() + idea.tier.slice(1)}
                   </Badge>
                   <span className="text-muted-foreground">{idea.category}</span>
+                  {idea.ai_verified && (
+                    <Badge variant="outline" className="text-green-600 border-green-600/30 bg-green-500/5">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      AI Verified
+                    </Badge>
+                  )}
                 </div>
 
                 <h1 className="font-display text-3xl md:text-4xl font-bold mb-4">
@@ -85,18 +92,18 @@ const IdeaDetail = () => {
                     className={`flex items-center gap-2 transition-colors ${liked ? 'text-red-500' : ''}`}
                   >
                     <Heart className={`w-5 h-5 ${liked ? 'fill-current' : ''}`} />
-                    <span>{liked ? idea.likes + 1 : idea.likes} likes</span>
+                    <span>{liked ? (idea.likes || 0) + 1 : idea.likes || 0} likes</span>
                   </button>
                   <div className="flex items-center gap-2">
                     <Eye className="w-5 h-5" />
-                    <span>{idea.views} views</span>
+                    <span>{idea.views || 0} views</span>
                   </div>
-                  <span>Posted {new Date(idea.createdAt).toLocaleDateString()}</span>
+                  <span>Posted {new Date(idea.created_at).toLocaleDateString()}</span>
                 </div>
 
                 {/* Tags */}
                 <div className="flex flex-wrap gap-2">
-                  {idea.tags.map((tag) => (
+                  {idea.tags?.map((tag) => (
                     <span
                       key={tag}
                       className="px-3 py-1.5 bg-secondary/60 backdrop-blur-sm rounded-lg text-sm text-muted-foreground"
@@ -141,7 +148,7 @@ const IdeaDetail = () => {
                     .filter(Boolean)
                     .map((item, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 glass-subtle rounded-xl">
-                        <CheckCircle className="w-5 h-5 text-tier-demo flex-shrink-0" />
+                        <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
                         <span className="text-sm">{item}</span>
                       </div>
                     ))}
@@ -152,11 +159,24 @@ const IdeaDetail = () => {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="sticky top-24 space-y-6">
+                {/* AI Verification Card */}
+                <IdeaVerification
+                  ideaId={idea.id}
+                  title={idea.title}
+                  description={idea.description}
+                  category={idea.category}
+                  tags={idea.tags || []}
+                  existingAnalysis={idea.ai_analysis}
+                  existingScore={idea.ai_score}
+                  existingPredictedPrice={idea.ai_predicted_price}
+                  isVerified={idea.ai_verified || false}
+                />
+
                 {/* Purchase Card */}
                 <div className={`glass rounded-2xl p-6 ${idea.tier === 'premium' ? 'border-accent/30 shadow-premium' : 'border-border/50 shadow-soft'}`}>
                   <div className="text-center mb-6">
                     {idea.tier === 'demo' ? (
-                      <span className="font-display text-4xl font-bold text-tier-demo">Free</span>
+                      <span className="font-display text-4xl font-bold text-primary">Free</span>
                     ) : (
                       <div>
                         <span className="font-display text-4xl font-bold text-gradient">${idea.price.toLocaleString()}</span>
@@ -171,7 +191,7 @@ const IdeaDetail = () => {
                     </Button>
                   ) : (
                     <Link to={`/checkout/${idea.id}`}>
-                      <Button variant={idea.tier === 'premium' ? 'premium' : 'hero'} size="lg" className="w-full mb-3 hover-shine">
+                      <Button variant={idea.tier === 'premium' ? 'default' : 'hero'} size="lg" className="w-full mb-3 hover-shine">
                         <ShoppingCart className="w-5 h-5 mr-2" />
                         Purchase Now
                       </Button>
@@ -211,10 +231,10 @@ const IdeaDetail = () => {
                   <h3 className="font-semibold mb-4">About the Creator</h3>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-semibold">
-                      {idea.author.name.split(' ').map((n) => n[0]).join('')}
+                      IC
                     </div>
                     <div>
-                      <p className="font-medium">{idea.author.name}</p>
+                      <p className="font-medium">Idea Creator</p>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Star className="w-3 h-3 text-accent fill-accent" />
                         <span>4.9 rating</span>

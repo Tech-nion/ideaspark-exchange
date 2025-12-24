@@ -28,11 +28,16 @@ export const useIdeas = () => {
         tags: idea.tags || [],
         likes: idea.likes || 0,
         views: Math.floor(Math.random() * 500) + 100,
-        createdAt: idea.created_at,
+        created_at: idea.created_at,
         author: {
           id: idea.creator_id || 'system',
           name: 'IdeaXchange Team',
         },
+        ai_verified: idea.ai_verified,
+        ai_score: idea.ai_score,
+        ai_predicted_price: idea.ai_predicted_price,
+        ai_analysis: idea.ai_analysis,
+        verified_at: idea.verified_at,
       }));
     },
   });
@@ -67,11 +72,16 @@ export const useIdea = (id: string) => {
         tags: data.tags || [],
         likes: data.likes || 0,
         views: Math.floor(Math.random() * 500) + 100,
-        createdAt: data.created_at,
+        created_at: data.created_at,
         author: {
           id: data.creator_id || 'system',
           name: 'IdeaXchange Team',
         },
+        ai_verified: data.ai_verified,
+        ai_score: data.ai_score,
+        ai_predicted_price: data.ai_predicted_price,
+        ai_analysis: data.ai_analysis,
+        verified_at: data.verified_at,
       };
     },
     enabled: !!id,

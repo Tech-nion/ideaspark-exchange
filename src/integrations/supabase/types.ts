@@ -16,6 +16,10 @@ export type Database = {
     Tables: {
       ideas: {
         Row: {
+          ai_analysis: string | null
+          ai_predicted_price: number | null
+          ai_score: number | null
+          ai_verified: boolean | null
           category: string
           created_at: string
           creator_id: string | null
@@ -30,8 +34,13 @@ export type Database = {
           tier: string
           title: string
           updated_at: string
+          verified_at: string | null
         }
         Insert: {
+          ai_analysis?: string | null
+          ai_predicted_price?: number | null
+          ai_score?: number | null
+          ai_verified?: boolean | null
           category: string
           created_at?: string
           creator_id?: string | null
@@ -46,8 +55,13 @@ export type Database = {
           tier?: string
           title: string
           updated_at?: string
+          verified_at?: string | null
         }
         Update: {
+          ai_analysis?: string | null
+          ai_predicted_price?: number | null
+          ai_score?: number | null
+          ai_verified?: boolean | null
           category?: string
           created_at?: string
           creator_id?: string | null
@@ -62,6 +76,7 @@ export type Database = {
           tier?: string
           title?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
