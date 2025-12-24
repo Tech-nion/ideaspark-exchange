@@ -139,6 +139,11 @@ const Navbar = () => {
                     {user.email}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/my-ideas')}>
+                    <Lightbulb className="w-4 h-4 mr-2" />
+                    My Ideas
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
@@ -190,16 +195,24 @@ const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              <div className="flex gap-2 mt-4 px-4">
+              <div className="flex flex-col gap-2 mt-4 px-4">
                 {user ? (
                   <>
-                    <Button variant="outline" className="flex-1" onClick={() => { handleSignOut(); setIsOpen(false); }}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                    <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
-                      <Button variant="hero" className="w-full">Submit</Button>
+                    <Link to="/my-ideas" className="w-full" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        <Lightbulb className="w-4 h-4 mr-2" />
+                        My Ideas
+                      </Button>
                     </Link>
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1" onClick={() => { handleSignOut(); setIsOpen(false); }}>
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </Button>
+                      <Link to="/submit" className="flex-1" onClick={() => setIsOpen(false)}>
+                        <Button variant="hero" className="w-full">Submit</Button>
+                      </Link>
+                    </div>
                   </>
                 ) : (
                   <>

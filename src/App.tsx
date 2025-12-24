@@ -16,6 +16,7 @@ import Team from "./pages/Team";
 import Reviews from "./pages/Reviews";
 import GetQuote from "./pages/GetQuote";
 import Checkout from "./pages/Checkout";
+import MyIdeas from "./pages/MyIdeas";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/get-quote" element={<GetQuote />} />
             <Route path="/checkout/:id" element={<Checkout />} />
+            <Route path="/my-ideas" element={<MyIdeas />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
